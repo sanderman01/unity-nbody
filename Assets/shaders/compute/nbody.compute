@@ -1,14 +1,18 @@
-﻿// Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel CSMain
+﻿#pragma kernel NBody
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
-RWTexture2D<float4> Result;
-
-[numthreads(8,8,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
+struct Particle
 {
-	// TODO: insert actual code here!
+	float3 pos;
+	float3 vel;
+};
 
-	Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+RWStructuredBuffer<Particle> buffer;
+
+[numthreads(64,1,1)]
+void NBody (uint3 id : SV_DispatchThreadID)
+{
+	Particle a = buffer[id.x];
+	a.pos += a.vel;
+
+	buffer[id.x] = a;
 }
