@@ -6,7 +6,12 @@ using UnityEngine;
 public class NBodySim : MonoBehaviour {
 
     [SerializeField]
-    private int nBodies = 1000;
+    private int nBodies = 100;
+
+    [SerializeField]
+    private float BodyMass = 1;
+    [SerializeField]
+    private float GConstant = 6.7f * 0.00001f;
 
     [SerializeField]
     private ParticleSystem fx;
@@ -18,6 +23,8 @@ public class NBodySim : MonoBehaviour {
 
     private ComputeBuffer buffer;
     private ParticleBody[] data;
+
+    private long frame;
 
     struct ParticleBody {
         public Vector3 pos;
@@ -31,6 +38,7 @@ public class NBodySim : MonoBehaviour {
     }
 
     void Update() {
+        frame++;
         RunShader();
         UpdateParticles();
     }
@@ -59,7 +67,7 @@ public class NBodySim : MonoBehaviour {
 
         for(int i = 0; i < data.Length; i++) {
             ParticleBody p = new ParticleBody();
-            p.vel = Vector3.one * 0.1f;
+            p.vel = UnityEngine.Random.insideUnitSphere * 0.1f;
             p.pos = UnityEngine.Random.insideUnitSphere;
             data[i] = p;
         }
@@ -72,12 +80,18 @@ public class NBodySim : MonoBehaviour {
             ParticleSystem.Particle a = particles[i];
             particles[i].position = Vector3.zero;
             particles[i].startColor = Color.white;
-            particles[i].startSize = 0.1f;
+            particles[i].startSize = 0.01f;
         }
         fx.SetParticles(particles, particles.Length);
     }
 
     void RunShader() {
+
+
+        shader.SetInt("bodyCount", nBodies);
+        shader.SetFloat("bodyMass", BodyMass);
+        shader.SetFloat("gravConstant", GConstant);
+        shader.SetFloat("deltaTime", Time.deltaTime);
         shader.Dispatch(kernel, data.Length, 1, 1);
         buffer.GetData(data);
     }

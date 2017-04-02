@@ -166,7 +166,7 @@ GameObject:
   - component: {fileID: 1570254607}
   - component: {fileID: 1570254606}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: NBody
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -183,6 +183,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8484b3bd582afa94bbae56f35e5db6ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  nBodies: 2000
+  BodyMass: 1
+  GConstant: 0.00006699999
   fx: {fileID: 1570254607}
   shader: {fileID: 7200000, guid: f5e0eaa26fe13ef4c9146ab8d18735b6, type: 3}
 --- !u!4 &1570254605
@@ -303,7 +306,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: -95540127
+  randomSeed: 675388816
   InitialModule:
     serializedVersion: 3
     enabled: 1

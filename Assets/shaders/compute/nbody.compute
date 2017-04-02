@@ -1,5 +1,10 @@
 ﻿#pragma kernel NBody
 
+int bodyCount;
+float bodyMass;
+float gravConstant;
+float deltaTime;
+
 struct Particle
 {
 	float3 pos;
@@ -8,11 +13,37 @@ struct Particle
 
 RWStructuredBuffer<Particle> buffer;
 
+// calculate force vector from particle i to particle j.
+float3 interactionForce(float3 iPos, float3 jPos) {
+	float g = gravConstant;
+	float m = bodyMass;
+	float3 r = jPos-iPos;
+	float rl = length(r);
+	float e = 10;
+	//return g  *  ( (m*m) / (rl*rl) )  *  (r / rl);
+	return (g * m) * (m * r) / pow(rl*rl + e, 2/3);
+}
+
 [numthreads(64,1,1)]
 void NBody (uint3 id : SV_DispatchThreadID)
-{
-	Particle a = buffer[id.x];
-	a.pos += a.vel;
+{	
+	buffer[id.x].pos += buffer[id.x].vel * deltaTime;
 
-	buffer[id.x] = a;
+	// Calculate the interaction forces for this particle with every other particle
+	float3 iPos = buffer[id.x].pos;
+	float3 force = float3(0,0,0);
+	[loop]
+	for(int j = 0; j < bodyCount; j++) {
+		if(id.x != j)
+		{
+			float3 jPos = buffer[j].pos;
+			force += interactionForce(iPos, jPos);
+		}
+	}
+
+	//float3 accel = 0.1;
+	float3 accel = bodyMass * force;
+	buffer[id.x].vel += deltaTime * accel;
 }
+
+
