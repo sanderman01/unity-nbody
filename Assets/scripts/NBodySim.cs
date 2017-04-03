@@ -9,9 +9,17 @@ public class NBodySim : MonoBehaviour {
     private int nBodies = 100;
 
     [SerializeField]
-    private float BodyMass = 1;
+    private float timeScale = 1;
+
     [SerializeField]
-    private float GConstant = 6.7f * 0.00001f;
+    private float bodyMassMultiplier = 1;
+    [SerializeField]
+    private float gConstant = 6.7f * 0.00001f;
+    [SerializeField]
+    private float softening = 2;
+
+    [SerializeField]
+    private float particleSize = 0.01f;
 
     [SerializeField]
     private ParticleSystem fx;
@@ -26,8 +34,10 @@ public class NBodySim : MonoBehaviour {
 
     private long frame;
 
+
     struct ParticleBody {
         public Vector3 pos;
+        public float mass;
         public Vector3 vel;
     };
 
@@ -48,11 +58,15 @@ public class NBodySim : MonoBehaviour {
     }
 
     void Setup(int maxCount) {
-        kernel = shader.FindKernel("NBody");
+        try {
+            kernel = shader.FindKernel("NBody");
+        } catch(UnityException ex) {
+            Debug.Break();
+        }
 
         // buffer count is number of elements in the buffer
         // buffer stride is size in bytes of the datatype inside the buffer.
-        int bufferStride = sizeof(float) * 6;
+        int bufferStride = sizeof(float) * 7;
         buffer = new ComputeBuffer(maxCount, bufferStride);
         shader.SetBuffer(kernel, "buffer", buffer);
     }
@@ -67,8 +81,9 @@ public class NBodySim : MonoBehaviour {
 
         for(int i = 0; i < data.Length; i++) {
             ParticleBody p = new ParticleBody();
-            p.vel = UnityEngine.Random.insideUnitSphere * 0.1f;
-            p.pos = UnityEngine.Random.insideUnitSphere;
+            p.pos = UnityEngine.Random.onUnitSphere;
+            p.mass = UnityEngine.Random.value;
+            //p.vel = UnityEngine.Random.insideUnitSphere * 0.01f;
             data[i] = p;
         }
 
@@ -80,7 +95,7 @@ public class NBodySim : MonoBehaviour {
             ParticleSystem.Particle a = particles[i];
             particles[i].position = Vector3.zero;
             particles[i].startColor = Color.white;
-            particles[i].startSize = 0.01f;
+            particles[i].startSize = particleSize * data[i].mass;
         }
         fx.SetParticles(particles, particles.Length);
     }
@@ -89,9 +104,10 @@ public class NBodySim : MonoBehaviour {
 
 
         shader.SetInt("bodyCount", nBodies);
-        shader.SetFloat("bodyMass", BodyMass);
-        shader.SetFloat("gravConstant", GConstant);
-        shader.SetFloat("deltaTime", Time.deltaTime);
+        shader.SetFloat("bodyMassM", bodyMassMultiplier);
+        shader.SetFloat("gravConstant", gConstant);
+        shader.SetFloat("deltaTime", Time.deltaTime * timeScale);
+        shader.SetFloat("softening", softening);
         shader.Dispatch(kernel, data.Length, 1, 1);
         buffer.GetData(data);
     }

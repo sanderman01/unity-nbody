@@ -1,49 +1,49 @@
 ﻿#pragma kernel NBody
 
-int bodyCount;
-float bodyMass;
+uint bodyCount;
 float gravConstant;
 float deltaTime;
+float softening;
 
 struct Particle
 {
-	float3 pos;
-	float3 vel;
+	float4 body; // body.xyz represents body position. body.w represents body mass.
+	float3 vel;  // represents body velocity.
 };
 
 RWStructuredBuffer<Particle> buffer;
 
-// calculate force vector from particle i to particle j.
-float3 interactionForce(float3 iPos, float3 jPos) {
-	float g = gravConstant;
-	float m = bodyMass;
-	float3 r = jPos-iPos;
-	float rl = length(r);
-	float e = 10;
-	//return g  *  ( (m*m) / (rl*rl) )  *  (r / rl);
-	return (g * m) * (m * r) / pow(rl*rl + e, 2/3);
+// bodyi  : Position and mass of body i
+// bodyj  : Position and mass of body j
+// ai     : Acceleration accumulator for body i
+float3 ai(float4 bodyi, float4 bodyj, float3 ai) 
+{
+	float jmass = bodyj.a;
+	float3 dist = bodyj.xyz - bodyi.xyz;  // distance vector between body i and body j
+	float distl = length(dist); // magnitude of the distance
+	return ai + (jmass*dist) / pow(distl*distl + softening*softening, 3./2.);
 }
 
 [numthreads(64,1,1)]
 void NBody (uint3 id : SV_DispatchThreadID)
-{	
-	buffer[id.x].pos += buffer[id.x].vel * deltaTime;
-
+{
 	// Calculate the interaction forces for this particle with every other particle
-	float3 iPos = buffer[id.x].pos;
-	float3 force = float3(0,0,0);
+	float4 ibody = buffer[id.x].body;
+
+	float3 accel;
 	[loop]
-	for(int j = 0; j < bodyCount; j++) {
+	for(uint j = 0; j < bodyCount; j++) {
 		if(id.x != j)
 		{
-			float3 jPos = buffer[j].pos;
-			force += interactionForce(iPos, jPos);
+			float4 jbody = buffer[j].body;
+			accel = ai(ibody, jbody, accel);
 		}
 	}
 
-	//float3 accel = 0.1;
-	float3 accel = bodyMass * force;
-	buffer[id.x].vel += deltaTime * accel;
+	float3 ivel = buffer[id.x].vel + deltaTime * gravConstant * accel;
+	buffer[id.x].vel = ivel;
+	ibody.xyz += ivel;
+	buffer[id.x].body = ibody;
 }
 
 

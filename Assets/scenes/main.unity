@@ -25,7 +25,7 @@ RenderSettings:
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
   m_AmbientMode: 0
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -183,9 +183,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8484b3bd582afa94bbae56f35e5db6ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nBodies: 2000
-  BodyMass: 1
-  GConstant: 0.00006699999
+  nBodies: 4000
+  timeScale: 1
+  bodyMassMultiplier: 1
+  gConstant: 0.00001699999
+  softening: 0.5
+  particleSize: 0.02
   fx: {fileID: 1570254607}
   shader: {fileID: 7200000, guid: f5e0eaa26fe13ef4c9146ab8d18735b6, type: 3}
 --- !u!4 &1570254605
@@ -306,7 +309,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: 675388816
+  randomSeed: 528773109
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -2936,8 +2939,8 @@ Camera:
   m_GameObject: {fileID: 2039876763}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -2969,7 +2972,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2039876763}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
