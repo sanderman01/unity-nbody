@@ -306,7 +306,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8484b3bd582afa94bbae56f35e5db6ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nBodies: 6000
+  nBodies: 5000
+  targetFramerate: 60
   timeScale: 1
   bodyMassMultiplier: 1
   gConstant: 0.00001699999

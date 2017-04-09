@@ -9,6 +9,8 @@ public class NBodySim : MonoBehaviour {
     private int nBodies = 100;
 
     [SerializeField]
+    private int targetFramerate = 60;
+    [SerializeField]
     private float timeScale = 1;
 
     [SerializeField]
@@ -45,6 +47,7 @@ public class NBodySim : MonoBehaviour {
     };
 
     void Start() {
+        //Application.targetFrameRate = targetFramerate;
         Setup(nBodies);
         Init(nBodies);
     }
@@ -84,7 +87,7 @@ public class NBodySim : MonoBehaviour {
         computeShader.SetInt("bodyCount", nBodies);
         computeShader.SetFloat("bodyMassM", bodyMassMultiplier);
         computeShader.SetFloat("gravConstant", gConstant);
-        computeShader.SetFloat("deltaTime", Time.deltaTime * timeScale);
+        computeShader.SetFloat("deltaTime", (1f/(float)targetFramerate) * timeScale);
         computeShader.SetFloat("softening", softening);
 
         data = new ParticleBody[count];

@@ -24,7 +24,7 @@ float3 ai(float4 bodyi, float4 bodyj, float3 ai)
 	return ai + (jmass*dist) / pow(distl*distl + softening*softening, 3./2.);
 }
 
-[numthreads(64,1,1)]
+[numthreads(4,1,1)]
 void NBody (uint3 id : SV_DispatchThreadID)
 {
 	// Calculate the interaction forces for this particle with every other particle
@@ -39,6 +39,7 @@ void NBody (uint3 id : SV_DispatchThreadID)
 			accel = ai(ibody, jbody, accel);
 		}
 	}
+	GroupMemoryBarrierWithGroupSync();
 
 	float3 ivel = buffer[id.x].vel + deltaTime * gravConstant * accel;
 	buffer[id.x].vel = ivel;
